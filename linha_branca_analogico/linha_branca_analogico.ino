@@ -1,0 +1,75 @@
+// Módulo seguidor de linha;
+// Código carrinho seguidor de linha.
+ 
+int UTD = 12; //PORTA DO SENSOR DA DIREITA
+int UTE = 11; //PORTA DO SENSOR DA ESQUERDA
+
+int D1B = 5; //DIRECAO DIREITA
+int D1A = 4; //PWM DIREITA
+int E1B = 7; //DIRECAO ESQUERDA
+int E1A = 6; //PWM ESQUERDA
+
+//INICIALIZANDO DUAS VARIAVEIS QUE VAO GUARDAR A LEITURA DOS SENSORES
+int SensorD = 0; 
+int SensorE = 0;
+
+//FUNCAO QUE RECEBE A LEITURA DIGITAL DAS PORTAS DOS SENSORES, ARMAZENA NAS VARIAVEIS CRIADAS E RETORNA
+void ler() {
+ SensorD = digitalRead(UTD);
+ SensorE = digitalRead(UTE);
+ return;
+}
+
+//FUNCAO QUE ATIVA AS DUAS RODAS A UMA VELOCIDADE DE 0 A 255, SENTIDO HIGH OU LOW
+void MotorFrente() {
+ analogWrite(D1A, 180);
+ digitalWrite(D1B, LOW);
+ 
+ analogWrite(E1A, 180); 
+ digitalWrite(E1B, LOW);
+}
+
+//FUNCAO QUE PARA O MOTOR DA ESQUERDA E PERMANECE COM O DA DIREITA LIGADO PARA FAZER CURVAS A ESQUERDA
+void DesativaEsquerda() {
+ analogWrite(D1A, 180);
+ digitalWrite(D1B, LOW);
+ 
+ analogWrite(E1A,0);
+ digitalWrite(E1B, LOW);
+ delay(2);
+}
+
+//FUNCAO QUE PARA O MOTOR DA DIREITA E PERMANECE COM O DA ESQUERDA LIGADO PARA FAZER CURVAS A DIREITA
+void DesativaDireita() {
+ analogWrite(E1A, 180);
+ digitalWrite(E1B, LOW);
+
+ analogWrite(D1A, 0);
+ digitalWrite(D1B, LOW);
+ delay(2);
+}
+
+void setup() {
+ Serial.begin(9600);
+ pinMode(UTD, INPUT); //PINOS DOS SENSORES DEFINIDOS COMO ENTRADA
+ pinMode(UTE, INPUT);
+
+ pinMode(D1B, OUTPUT); //PINOS DOS MOTORES DEFINIDOS COMO SAIDA
+ pinMode(D1A, OUTPUT);
+ pinMode(E1B, OUTPUT);
+ pinMode(E1A, OUTPUT);
+}
+
+void loop() {
+ ler(); //ACIONA A FUNCAO DE LER OS SENSORES
+ 
+ if(SensorE==0) { //SE O SENSOR DA ESQUERDA DETECTAR BRANCO(0), CHAMA A FUNCAO QUE DESATIVA A RODA ESQUERDA
+  DesativaEsquerda();
+ }
+ else if(SensorD==0) { //SE O SENSOR DA DIREITA DETECTAR BRANCO(0), CHAMA A FUNCAO QUE DESATIVA A RODA DIREITA
+  DesativaDireita();
+ }
+ else { //CASO NAO SEJA NENHUM ACIMA, SIGNIFICA QUE AMBOS OS SENSORES OBTEM A MESMA LEITURA, ENTAO O CARRO DEVE ANDAR PRA FRENTE
+  MotorFrente();
+ }
+}
